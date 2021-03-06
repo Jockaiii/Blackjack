@@ -15,6 +15,16 @@
             NumberText = NumberTexts[CardNumber];
         }
 
+        internal static readonly List<string> CardNumbers = new List<string>() // är alla kortnummer i en kortleck.
+        {
+            "2", "3", "4", "5", "6", "7", "8", "9", "J", "Q", "K", "A"
+        };
+
+        internal static readonly List<string> CardSuites = new List<string>() // är alla kortsuites i en kortleck.
+        {
+            "Hearts", "Diamonds", "Clubs", "Spades"
+        };
+
         private static readonly Dictionary<string, string> SuitIcons = new Dictionary<string, string>() // Ikoner för suites.
         {
             { "Hearts", "♥" },

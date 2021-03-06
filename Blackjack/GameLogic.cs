@@ -1,17 +1,18 @@
-﻿namespace Blackjack
+﻿using System.Collections.Generic;
+
+namespace Blackjack
 {
-    using System.Collections.Generic;
     public static class GameLogic
     {
         /// <summary>
         /// PlayerChecker() ser till att spelaren är eligiable att fortsätta dra kort.
         /// </summary>
-        /// <param name="currentPlayer"></param>
-        /// indexering i listan Players för att hålla koll på vilken spelares tur det är.
+        /// <param name="currentPlayer">indexering i listan Players för att hålla koll på vilken spelares tur det är.</param>
         /// <returns>returnerar true om spelaren inte får fortsätta.</returns>
         public static bool PlayerChecker(int currentPlayer)
         {
-            Player.Players[currentPlayer].PlayerSum = CardCounter(Player.Players[currentPlayer].PlayerHand);
+            Player.Players[currentPlayer].PlayerSum = CardCounter(Player.Players[currentPlayer].PlayerHand); // Hämtar summan av korten i handen.
+
             if (Player.Players[currentPlayer].PlayerSum > 21) // Bust
             {
                 Output.OutputBust();
@@ -23,9 +24,7 @@
                 return true;
             }
             else if (Player.Players[currentPlayer].PlayerSum == 21) // Får inte fortstätta om man redan nått 21
-            {
                 return true;
-            }
             return false;
         }
 
@@ -42,27 +41,22 @@
                 return true;
             }
             else if (House.HouseSum > 16) // Huset stannar alltid när summan överstiger 16
-            {
                 return true;
-            }
             else if (House.HouseSum == 21 && House.HouseHand.Count == 2) // Blackjack
             {
                 Output.OutputBlackjack();
                 return true;
             }
             else if (House.HouseSum == 21)
-            {
                 return true;
-            }
             return false;
         }
 
         /// <summary>
         /// Räknar summan av korten i en "hand".
         /// </summary>
-        /// <param name="Hand"></param>
-        /// Tar emot en spelare eller husets hand,
-        /// <returns>returnerar summan av handen.</returns>
+        /// <param name="Hand">Tar emot en spelare eller husets hand</param>
+        /// <returns>returnerar summan av korten i handen.</returns>
         public static int CardCounter(List<Card> Hand) // (the legal kind?)
         {
             var sum = 0;
@@ -88,7 +82,7 @@
                     }
                     sum += int.Parse(card.CardNumber);
 
-                    if (sum > 21)
+                    if (sum > 21) // Kollar efter ess att göra om till 1 ifall summan är över 21
                     {
                         var temp = sum; // Sparar summan så att den kan skrivas ut om det inte går att få ner totalen under 21
                         foreach (var card2 in Hand)
@@ -110,6 +104,9 @@
             return sum;
         }
 
+        public static bool Winner { get; set; } // properties för att kunna testa GameResults() i unit tests
+        public static bool Draw { get; set; }
+
         /// <summary>
         /// bedömmer win, draw eller loss conditions och delar ut kredits därefter.
         /// </summary>
@@ -117,60 +114,41 @@
         {
             foreach (var player in Player.Players)
             {
-                bool winner;
+                Draw = false;
+
                 if (House.HouseSum > 21 && player.PlayerSum <= 21) // Huset har gått bust men inte spelaren => spelaren vinner.
-                {
-                    winner = true;
-                    player.PlayerBalance += player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = true;
                 else if (player.PlayerSum > 21 && House.HouseSum <= 21) // Spelaren har gått bust men inte huset => spelaren förlorar.
-                {
-                    winner = false;
-                    player.PlayerBalance -= player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = false;
                 else if (player.PlayerSum > 21 && House.HouseSum > 21) // Både spelaren och huset har gått bust och rundan avgörs då som lika.
-                {
-                    Output.OutputDraw(player.PlayerName);
-                }
+                    Draw = true;
                 else if (player.PlayerSum == 21 && player.PlayerHand.Count == 2 && House.HouseSum != 21 && House.HouseHand.Count != 2) // Spelaren har fått blackjack och har vunnit om inte huset också har fått blackjack.
-                {
-                    winner = true;
-                    player.PlayerBalance += player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = true;
                 else if (House.HouseSum == 21 && House.HouseHand.Count == 2 && player.PlayerSum != 21 && player.PlayerHand.Count != 2) // Huset har fått blackjack och har vunnit om inte spelarn också har fått blackjack.
-                {
-                    winner = false;
-                    player.PlayerBalance -= player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = false;
                 else if (player.PlayerSum == 21 && player.PlayerHand.Count == 2 && House.HouseSum == 21 && House.HouseHand.Count == 2) // Både spelaren och huset har fått en blackjack och rundan avgörs därmed lika.
-                {
-                    Output.OutputDraw(player.PlayerName);
-                }
+                    Draw = true;
                 else if (player.PlayerSum > House.HouseSum && player.PlayerSum <= 21) // Spelaren har fått högre poäng än huset. (Men har inte gått över 21) och vinner därmed rundan.
-                {
-                    winner = true;
-                    player.PlayerBalance += player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = true;
                 else if (House.HouseSum > player.PlayerSum && House.HouseSum <= 21) // Huset har fått högre poäng än spelaren (men har inte gått över 21) och vinner därmed rundan.
-                {
-                    winner = false;
-                    player.PlayerBalance -= player.PlayerBet;
-                    Output.OutputWin(winner, player.PlayerName);
-                }
+                    Winner = false;
                 else if (player.PlayerSum == House.HouseSum) // Både huset och spelaren har fått samma poäng (och ingen har fått en blackjack) och rundan avgörs därmed lika.
-                {
+                    Draw = true;
+                else
+                    Output.OutputSomethingGoneWrong();
+
+                if (Draw)
                     Output.OutputDraw(player.PlayerName);
-                }
                 else
                 {
-                    Output.OutputSomethingGoneWrong();
+                    if (Winner)
+                        player.PlayerBalance += player.PlayerBet;
+                    else
+                        player.PlayerBalance -= player.PlayerBet;
+                    Output.OutputWin(player.PlayerName);
                 }
             }
+            Output.OutputPlayerBalance(); // skriver ut alla spelares balance i slutet av rundan.
         }
     }
 }

@@ -1,12 +1,13 @@
-﻿namespace Blackjack
+﻿ using System;
+
+namespace Blackjack
 {
-    using System;
     internal static class Input
     {
         /// <summary>
-        /// CreatePlayers() tar emot input av användaren och tilkallar metdon som skapar spelare "amountOfPlayers" gånger.
+        /// CreatePlayers() tar emot input av användaren och tilkallar metoden som skapar spelare "amountOfPlayers" gånger.
         /// </summary>
-        public static void CreatePlayers()
+        internal static void CreatePlayers()
         {
             int amountOfPlayers;
             do
@@ -24,8 +25,9 @@
 
         /// <summary>
         /// CreateDecks() tar emot input av användaren och tillkallar metoden som skapar kortleckar "amountOfDecks" gånger därefter.
+        /// Ny funktion.. Stanard 3 kortleckar eftersom användaren inte längre ska få välja antal kortleckar.
         /// </summary>
-        public static void CreateDecks()
+        internal static void CreateDecks()
         {
             int amountOfDecks;
             do
@@ -34,17 +36,15 @@
                 amountOfDecks = InputHandler.DeckAmountHandler();
             } while (amountOfDecks == 0);
 
-            for (int i = 0; i < amountOfDecks; i++)
-            {
-                _ = new Deck();
-            }
+            for (int i = 0; i < amountOfDecks; i++) // skapar Kortleckar amountOfDecks gånger (3 gånger som standard nu)
+            _ = new Deck();
         }
 
         /// <summary>
         /// ChooseBet() tar emot input av användaren och sätter spelarens PlayerBet till betet om det går igenom InputHandlern()
         /// </summary>
         /// <param name="currentPlayer"></param>
-        public static void ChooseBet(int currentPlayer)
+        internal static void ChooseBet(int currentPlayer)
         {
             int bet;
             do
@@ -59,8 +59,9 @@
         /// Väntar på ett knapptryck av användaren för att fortsätta kompilera programmet.
         /// </summary>
         /// <returns>returneras att användaren har tryckt ner en knapp.</returns>
-        public static string Continue()
+        internal static string Continue()
         {
+            Output.OutputWaitForEnter();
             return Console.ReadLine();
         }
     }

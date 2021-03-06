@@ -1,7 +1,8 @@
-﻿namespace Blackjack
+﻿using System;
+
+namespace Blackjack
 {
-    using System;
-    internal static class Output
+    public static class Output
     {
         /// <summary>
         /// Frågar användaren efter antal spelare.
@@ -23,10 +24,10 @@
         /// Skriver ut det senaste slumpdragna kortet.
         /// </summary>
         /// <param name="card">Kortet som skall skrivas ut. Innehåller Kortnummer och kortsuite.</param>
-        /// <param name="playerName">Vem som drog kortet.</param>
-        public static void OutputCard(Card card, string playerName)
+        /// <param name="name">Vem som drog kortet.</param>
+        public static void OutputCard(Card card, string name)
         {
-            Console.WriteLine("{0} Received: {1} of {2}", playerName, card.NumberText, card.CardSuite);
+            Console.WriteLine("{0} Received: {1} of {2}", name, card.NumberText, card.CardSuite);
             Console.WriteLine("┌─────┐");
             Console.WriteLine("│{0,-2}   │", card.CardNumber);
             Console.WriteLine("│  {0}  │", card.SuitIcon);
@@ -78,15 +79,16 @@
         /// <summary>
         /// Skriver ut att turen avgjorts som vinst eller förlust för spelaren.
         /// </summary>
-        /// <param name="winner">true om spelaren vann</param>
+        /// <param name="GameLogic.Winner">true om spelaren vann</param>
         /// <param name="playerName">spelaren i fråga</param>
-        public static void OutputWin(bool winner, string playerName)
+        public static void OutputWin(string playerName)
         {
-            if (winner) // om winner är true vann spelaren annars vann huset.
+            if (GameLogic.Winner) // om winner = true vann spelaren annars vann huset.
                 Console.WriteLine("{0} WINS!!!!", playerName);
             else
                 Console.WriteLine("{0} Loses :(", playerName);
         }
+
         /// <summary>
         /// Skriver ut att programmet väntar på spelarens input.
         /// </summary>
@@ -96,16 +98,49 @@
         }
 
         /// <summary>
-        /// Utifall något gick fel med spellogiken så krashar inte programmet utan säger istället till att något har gått fel.
+        /// Utifall något gick fel med spellogiken så krashar inte programmet utan säger istället till att något har gått fel. (användes mest när spellogiken testades)
         /// </summary>
         public static void OutputSomethingGoneWrong()
         {
             Console.WriteLine("Something has gone horribly wrong :(");
         }
 
+        /// <summary>
+        /// Frågar användaren hur mycket hen vill betta.
+        /// </summary>
+        /// <param name="playerName">spelarens namn</param>
         public static void OutputBet(string playerName)
         {
             Console.Write("{0} Choose how much you'd like to bet: ", playerName);
+        }
+
+        /// <summary>
+        /// Om PlayerHelper anser att spelaren borde stanna så skriver denna metoden ut det till spelaren.
+        /// </summary>
+        public static void HelperStop()
+        {
+            Console.WriteLine("You should probably stop");
+        }
+
+        /// <summary>
+        /// Om PlayerHelper anser att spelaren borde dra ett kort till så skriver denna metoden ut det till spelaren.
+        /// </summary>
+        public static void HelperContinue()
+        {
+            Console.WriteLine("You should probably draw another card");
+        }
+
+        /// <summary>
+        /// Skriver ut alla spelares PlayerBalance.
+        /// </summary>
+        public static void OutputPlayerBalance()
+        {
+            foreach (var player in Player.Players)
+            {
+                Console.WriteLine("\n----------------------------------------");
+                Console.WriteLine("Name \t Balance");
+                Console.WriteLine("{0} \t {1}", player.PlayerName, player.PlayerBalance);
+            }
         }
     }
 }
